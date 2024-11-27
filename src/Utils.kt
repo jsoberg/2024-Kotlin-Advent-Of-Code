@@ -1,12 +1,30 @@
+import com.soberg.kotlin.aoc.api.AdventOfCodeInputApi
 import java.math.BigInteger
 import java.security.MessageDigest
 import kotlin.io.path.Path
+import kotlin.io.path.exists
 import kotlin.io.path.readText
 
+private const val Year = 2024
+
 /**
- * Reads lines from the given input txt file.
+ * Pulls and caches input lines for specified [day].
  */
-fun readInput(name: String) = Path("src/$name.txt").readText().trim().lines()
+fun readInput(day: Int) = AdventOfCodeInputApi(
+    cachingStrategy = AdventOfCodeInputApi.CachingStrategy.LocalTextFile("input")
+).blockingReadInput(
+    year = Year,
+    day = day,
+    sessionToken = readSessionToken(),
+).getOrThrow()
+
+private fun readSessionToken(): String {
+    val secretTokenFile = Path("session-token.secret")
+    require(secretTokenFile.exists()) {
+        "session-token.secret file must exist and contain the sessionToken for Advent of Code"
+    }
+    return secretTokenFile.readText().trim()
+}
 
 /**
  * Converts string to md5 hash.

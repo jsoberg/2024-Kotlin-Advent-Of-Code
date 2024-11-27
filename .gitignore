@@ -4,3 +4,7 @@
 build
 src/**/*.txt
 local.properties
+
+# Not storing input files and session token in Git.
+input
+session-token.secret

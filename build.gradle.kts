@@ -13,3 +13,7 @@ tasks {
         gradleVersion = "8.11"
     }
 }
+
+dependencies {
+    implementation("com.github.jsoberg:Kotlin-AoC-API:1.0")
+}
