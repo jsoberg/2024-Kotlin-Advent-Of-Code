@@ -26,6 +26,12 @@ private fun readSessionToken(): String {
     return secretTokenFile.readText().trim()
 }
 
+fun readTestInput(day: Int) =
+    Path("input", "$Year", "Day${"%02d".format(day)}-test.txt")
+        .readText()
+        .trim()
+        .lines()
+
 /**
  * Converts string to md5 hash.
  */
