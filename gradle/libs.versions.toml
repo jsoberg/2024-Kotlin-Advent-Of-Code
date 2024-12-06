@@ -2,7 +2,7 @@
 kotlin = "2.0.21"
 kotlinCoroutines = "1.9.0"
 
-sobergAocUtilities = "2024.1"
+sobergAocUtilities = "2024.2"
 
 [libraries]
 # Kotlin
@@ -10,4 +10,4 @@ kotlin-stdlib = { module = "org.jetbrains.kotlin:kotlin-stdlib-jdk8", version.re
 kotlin-coroutines = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "kotlinCoroutines" }
 
 # Third-party
-soberg-aoc-utilities = { module = "com.github.jsoberg:Kotlin-AoC-Utilities", version.ref = "sobergAocUtilities" }
+soberg-aoc-utilities = { module = "com.github.jsoberg:kotlin-aoc-utilities", version.ref = "sobergAocUtilities" }

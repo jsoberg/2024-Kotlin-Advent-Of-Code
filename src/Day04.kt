@@ -1,9 +1,15 @@
 import Day04.Part1
 import Day04.Part2
+import com.soberg.aoc.utlities.datastructures.Grid2D
+import com.soberg.aoc.utlities.datastructures.Grid2D.Direction
+import com.soberg.aoc.utlities.datastructures.Grid2D.Location
+import com.soberg.aoc.utlities.datastructures.toGrid2D
 
 // https://adventofcode.com/2024/day/4
 fun main() {
-    val input = readInput(day = 4)
+    val input = readInput(day = 4).toGrid2D { line ->
+        line.toCharArray().asList()
+    }
     println("Part 1: ${Part1.calculateNumberOfWords(input)}")
     println("Part 2: ${Part2.calculateNumberOfXmasCrosses(input)}")
 }
@@ -14,69 +20,33 @@ private object Day04 {
         private const val Word = "XMAS"
         private const val ReverseWord = "SAMX"
 
-        fun calculateNumberOfWords(input: List<String>): Int {
+        fun calculateNumberOfWords(grid: Grid2D<Char>): Int {
             var sum = 0
-            for (row in 0..input.lastIndex) {
-                for (col in 0..<input[row].length) {
-                    sum += wordCountForGridStep(input, col, row)
-                }
+            grid.traverse { location ->
+                sum += wordCountForGridLocation(grid, location)
             }
             return sum
         }
 
-        private fun wordCountForGridStep(input: List<String>, col: Int, row: Int): Int =
-            horizontalWordCount(input, col, row) +
-                    verticalWordCount(input, col, row) +
-                    diagonalWordCount(input, col, row)
+        private fun wordCountForGridLocation(grid: Grid2D<Char>, location: Location): Int =
+            DirectionsToCheck.count { direction ->
+                isWordOrReversePresent(grid, location, direction)
+            }
 
-        private fun horizontalWordCount(input: List<String>, col: Int, row: Int): Int {
-            val endCol = col + 3
-            return if (endCol < input[row].length) {
-                val word =
-                    "${input[row][col]}${input[row][col + 1]}${input[row][col + 2]}${input[row][col + 3]}"
-                if (word == Word || word == ReverseWord) {
-                    1
-                } else 0
-            } else 0
-        }
+        private val DirectionsToCheck = setOf(
+            Direction.East,
+            Direction.South,
+            Direction.SouthEast,
+            Direction.SouthWest,
+        )
 
-        private fun verticalWordCount(input: List<String>, col: Int, row: Int): Int {
-            val endRow = row + 3
-            return if (endRow < input.size) {
-                val word =
-                    "${input[row][col]}${input[row + 1][col]}${input[row + 2][col]}${input[row + 3][col]}"
-                if (word == Word || word == ReverseWord) {
-                    1
-                } else 0
-            } else 0
-        }
-
-        private fun diagonalWordCount(input: List<String>, col: Int, row: Int): Int =
-            rightDiagonalWordCount(input, col, row) +
-                    leftDiagonalWordCount(input, col, row)
-
-        private fun rightDiagonalWordCount(input: List<String>, col: Int, row: Int): Int {
-            val endRow = row + 3
-            val endCol = col + 3
-            return if (endRow < input.size && endCol < input[row].length) {
-                val word =
-                    "${input[row][col]}${input[row + 1][col + 1]}${input[row + 2][col + 2]}${input[row + 3][col + 3]}"
-                if (word == Word || word == ReverseWord) {
-                    1
-                } else 0
-            } else 0
-        }
-
-        private fun leftDiagonalWordCount(input: List<String>, col: Int, row: Int): Int {
-            val endRow = row + 3
-            val endCol = col - 3
-            return if (endRow < input.size && endCol >= 0) {
-                val word =
-                    "${input[row][col]}${input[row + 1][col - 1]}${input[row + 2][col - 2]}${input[row + 3][col - 3]}"
-                if (word == Word || word == ReverseWord) {
-                    1
-                } else 0
-            } else 0
+        private fun isWordOrReversePresent(
+            grid: Grid2D<Char>,
+            location: Location,
+            direction: Direction
+        ): Boolean {
+            val word = grid.collectWord(location, direction, 4)
+            return (word == Word || word == ReverseWord)
         }
     }
 
@@ -84,41 +54,37 @@ private object Day04 {
         private const val Word = "MAS"
         private const val ReverseWord = "SAM"
 
-        fun calculateNumberOfXmasCrosses(input: List<String>): Int {
+        fun calculateNumberOfXmasCrosses(grid: Grid2D<Char>): Int {
             var sum = 0
-            for (row in 0..input.lastIndex) {
-                for (col in 0..<input[row].length) {
-                    if (xmasCrossCheckForGridStep(input, col, row)) {
-                        sum++
-                    }
+            grid.traverse { location ->
+                if (xmasCrossCheckForGridStep(grid, location)) {
+                    sum++
                 }
             }
             return sum
         }
 
-        private fun xmasCrossCheckForGridStep(input: List<String>, col: Int, row: Int): Boolean =
-            rightDiagonalXmasCheck(input, col, row) &&
-                    leftDiagonalXmasCheck(input, col, row)
+        private fun xmasCrossCheckForGridStep(grid: Grid2D<Char>, location: Location): Boolean =
+            isWordOrReversePresent(grid, location, Direction.SouthEast) &&
+                    leftDiagonalXmasCheck(grid, location)
 
-        private fun rightDiagonalXmasCheck(input: List<String>, col: Int, row: Int): Boolean {
-            val endRow = row + 2
-            val endCol = col + 2
-            return if (endRow < input.size && endCol < input[row].length) {
-                val word =
-                    "${input[row][col]}${input[row + 1][col + 1]}${input[row + 2][col + 2]}"
-                word == Word || word == ReverseWord
-            } else false
+        private fun leftDiagonalXmasCheck(grid: Grid2D<Char>, location: Location): Boolean {
+            // For the X, we need to move 2 columns over from current start.
+            val start = location.move(Direction.East, 2)
+            return isWordOrReversePresent(grid, start, Direction.SouthWest)
         }
 
-        private fun leftDiagonalXmasCheck(input: List<String>, col: Int, row: Int): Boolean {
-            val endRow = row + 2
-            // For the X, we need to move 2 columns over from current start.
-            val startCol = col + 2
-            return if (endRow < input.size && startCol < input[row].length) {
-                val word =
-                    "${input[row][col + 2]}${input[row + 1][col + 1]}${input[row + 2][col]}"
-                word == Word || word == ReverseWord
-            } else false
+        private fun isWordOrReversePresent(
+            grid: Grid2D<Char>,
+            location: Location,
+            direction: Direction
+        ): Boolean {
+            val word = grid.collectWord(location, direction, 3)
+            return (word == Word || word == ReverseWord)
         }
     }
+
+    private fun Grid2D<Char>.collectWord(from: Location, direction: Direction, distance: Int) =
+        collect(from, direction, distance)
+            ?.joinToString("") ?: ""
 }
