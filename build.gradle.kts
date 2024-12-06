@@ -17,5 +17,5 @@ tasks {
 dependencies {
     implementation(libs.kotlin.coroutines)
     implementation(libs.kotlin.stdlib)
-    implementation(libs.soberg.aoc.api)
+    implementation(libs.soberg.aoc.utilities)
 }
