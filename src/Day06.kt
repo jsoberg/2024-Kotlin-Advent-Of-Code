@@ -2,13 +2,13 @@ import Day06.Part1
 import Day06.Part2
 import Day06.PatrolGrid.LocationType
 import Day06.parseInput
+import com.soberg.aoc.utlities.datastructures.Grid2D
+import com.soberg.aoc.utlities.datastructures.Grid2D.Direction
+import com.soberg.aoc.utlities.datastructures.Grid2D.Location
+import com.soberg.aoc.utlities.datastructures.toGrid2D
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
-import utilities.Grid2D
-import utilities.Grid2D.Direction
-import utilities.Grid2D.Location
-import utilities.toGrid2D
 import java.util.concurrent.atomic.AtomicInteger
 import kotlin.time.measureTimedValue
 
