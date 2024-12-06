@@ -1,5 +1,5 @@
 plugins {
-    kotlin("jvm") version "2.1.0"
+    kotlin("jvm") version libs.versions.kotlin
 }
 
 sourceSets {
@@ -15,5 +15,7 @@ tasks {
 }
 
 dependencies {
-    implementation("com.github.jsoberg:Kotlin-AoC-API:1.0")
+    implementation(libs.kotlin.coroutines)
+    implementation(libs.kotlin.stdlib)
+    implementation(libs.soberg.aoc.api)
 }

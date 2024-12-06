@@ -1,0 +1,13 @@
+[versions]
+kotlin = "2.0.21"
+kotlinCoroutines = "1.9.0"
+
+sobergAocApi = "1.0"
+
+[libraries]
+# Kotlin
+kotlin-stdlib = { module = "org.jetbrains.kotlin:kotlin-stdlib-jdk8", version.ref = "kotlin" }
+kotlin-coroutines = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "kotlinCoroutines" }
+
+# Third-party
+soberg-aoc-api = { module = "com.github.jsoberg:Kotlin-AoC-API", version.ref = "sobergAocApi" }
