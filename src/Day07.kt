@@ -10,7 +10,7 @@ fun main() {
     val input = readInput(day = 7)
     val equations = parseInput(input)
     println("Part 1: ${Part1.calculateSumOfTestValues(equations)}")
-    println("Part 1: ${Part2.calculateSumOfTestValues(equations)}")
+    println("Part 2: ${Part2.calculateSumOfTestValues(equations)}")
 }
 
 private object Day07 {
