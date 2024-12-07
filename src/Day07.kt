@@ -3,34 +3,59 @@ import Day07.Operator.Concatenate
 import Day07.Operator.Multiply
 import Day07.Part1
 import Day07.Part2
+import Day07.calculateSumOfTestValuesAsync
+import Day07.calculateSumOfTestValuesSync
 import Day07.parseInput
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
+import java.util.concurrent.atomic.AtomicLong
+import kotlin.time.measureTimedValue
 
 // https://adventofcode.com/2024/day/7
 fun main() {
     val input = readInput(day = 7)
     val equations = parseInput(input)
-    println("Part 1: ${Part1.calculateSumOfTestValues(equations)}")
-    println("Part 2: ${Part2.calculateSumOfTestValues(equations)}")
+    val sync1 = measureTimedValue { calculateSumOfTestValuesSync(equations, Part1.Operators) }
+    println("Part 1 (Sync): ${sync1.value}, time: ${sync1.duration}")
+    val async1 = measureTimedValue { calculateSumOfTestValuesAsync(equations, Part1.Operators) }
+    println("Part 1 (Async): ${async1.value}, time: ${async1.duration}")
+
+    val sync2 = measureTimedValue { calculateSumOfTestValuesSync(equations, Part2.Operators) }
+    println("Part 2 (Sync): ${sync2.value}, time: ${sync2.duration}")
+    val async2 = measureTimedValue { calculateSumOfTestValuesAsync(equations, Part2.Operators) }
+    println("Part 2 (Async): ${async2.value}, time: ${async2.duration}")
 }
 
 private object Day07 {
 
     object Part1 {
-        fun calculateSumOfTestValues(equations: List<Equation>): Long =
-            equations.sumOf { equation ->
-                if (canTestValueBeCalculated(equation, listOf(Add, Multiply))) {
-                    equation.testValue
-                } else 0
-            }
+        val Operators = listOf(Add, Multiply)
     }
 
     object Part2 {
-        fun calculateSumOfTestValues(equations: List<Equation>): Long =
-            equations.sumOf { equation ->
-                if (canTestValueBeCalculated(equation, listOf(Add, Multiply, Concatenate))) {
-                    equation.testValue
-                } else 0
+        val Operators = listOf(Add, Multiply, Concatenate)
+    }
+
+    fun calculateSumOfTestValuesSync(equations: List<Equation>, operators: List<Operator>): Long =
+        equations.sumOf { equation ->
+            if (canTestValueBeCalculated(equation, operators)) {
+                equation.testValue
+            } else 0
+        }
+
+    fun calculateSumOfTestValuesAsync(equations: List<Equation>, operators: List<Operator>): Long {
+        val result = AtomicLong(0)
+        runBlocking(Dispatchers.Default) {
+            equations.forEach { equation ->
+                launch {
+                    if (canTestValueBeCalculated(equation, operators)) {
+                        result.addAndGet(equation.testValue)
+                    }
+                }
             }
+        }
+        return result.get()
     }
 
     fun parseInput(input: List<String>): List<Equation> = input.map { line ->
