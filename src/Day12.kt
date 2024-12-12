@@ -15,7 +15,7 @@ import com.soberg.aoc.utlities.datastructures.toCharGrid2D
 
 // https://adventofcode.com/2024/day/12
 fun main() {
-    val input = readTestInput(day = 12)
+    val input = readInput(day = 12)
     val grid = input.toCharGrid2D()
     println("Part 1: ${Part1.calculateTotalFencePrice(grid)}")
     println("Part 2: ${Part2.calculateTotalFencePrice(grid)}")
@@ -48,15 +48,13 @@ private object Day12 {
         fun calculateTotalFencePrice(grid: Grid2D<Char>): Int {
             val finder = RegionFinder(grid)
             val regions = finder.findRegions()
-            return regions.sumOf { region ->
-                calculateRegionFencePrice(grid, region)
-            }
+            return regions.sumOf(::calculateRegionFencePrice)
         }
 
-        private fun calculateRegionFencePrice(grid: Grid2D<Char>, region: Region): Int {
+        private fun calculateRegionFencePrice(region: Region): Int {
             val area = region.size
-            val numSides = RegionSideCounter(grid, region).sideCount()
-            return area * numSides
+            // # corners == # of sides
+            return area * region.numCorners
         }
     }
 
@@ -100,70 +98,34 @@ private object Day12 {
         }
     }
 
-    class RegionSideCounter(
-        private val grid: Grid2D<Char>,
-        private val region: Region,
-    ) {
-        fun sideCount(): Int {
-            /*            region.map { loc ->
-                            val corners = collectCorners(loc)
-                        }*/
+    data class Region(
+        private val plots: Set<Location>,
+    ) : Set<Location> by plots {
 
-            return region.map(::collectCorners)
-                .flatten()
-                .toSet()
-                .count()
+        val numCorners: Int by lazy {
+            plots.sumOf(::numCorners)
         }
 
-        private fun collectCorners(location: Location): Set<Corner> = buildSet {
+        private fun numCorners(location: Location): Int {
+            var corners = 0
             if (hasUpperRightCorner(location)) {
-                println("${grid[location]} $location has upper right")
-                add(
-                    Corner(
-                        rowInbetween = location.row - 1 to location.row,
-                        colInbetween = location.col to location.col + 1,
-                    )
-                )
+                corners++
             }
-
             if (hasUpperLeftCorner(location)) {
-                println("${grid[location]} $location has upper left")
-                add(
-                    Corner(
-                        rowInbetween = location.row - 1 to location.row,
-                        colInbetween = location.col - 1 to location.col,
-                    )
-                )
+                corners++
             }
-
             if (hasLowerLeftCorner(location)) {
-                println("${grid[location]} $location has lower left")
-                add(
-                    Corner(
-                        rowInbetween = location.row to location.row + 1,
-                        colInbetween = location.col - 1 to location.col,
-                    )
-                )
+                corners++
             }
-
             if (hasLowerRightCorner(location)) {
-                println("${grid[location]} $location has lower right")
-                add(
-                    Corner(
-                        rowInbetween = location.row to location.row + 1,
-                        colInbetween = location.col to location.col + 1,
-                    )
-                )
+                corners++
             }
-
-            if (size > 0) {
-                println()
-            }
+            return corners
         }
 
-        private infix fun Location.canGo(dir: Direction) = move(dir) in region
+        private infix fun Location.canGo(dir: Direction) = move(dir) in this@Region
 
-        private infix fun Location.cannotGo(dir: Direction) = move(dir) !in region
+        private infix fun Location.cannotGo(dir: Direction) = move(dir) !in this@Region
 
         private fun hasUpperRightCorner(loc: Location) =
             (loc cannotGo North && loc cannotGo East) ||
@@ -180,18 +142,6 @@ private object Day12 {
         private fun hasLowerLeftCorner(loc: Location) =
             (loc cannotGo South && loc cannotGo West) ||
                     (loc canGo South && loc canGo West && loc cannotGo SouthWest)
-
-        private data class Corner(
-            val rowInbetween: Pair<Int, Int>,
-            val colInbetween: Pair<Int, Int>,
-        ) {
-            override fun toString() = "{$rowInbetween, $colInbetween}"
-        }
-    }
-
-    data class Region(
-        private val plots: Set<Location>,
-    ) : Set<Location> by plots {
 
         companion object {
             val Directions = listOf(
