@@ -12,13 +12,20 @@ import com.soberg.aoc.utlities.datastructures.Grid2D.Direction.SouthWest
 import com.soberg.aoc.utlities.datastructures.Grid2D.Direction.West
 import com.soberg.aoc.utlities.datastructures.Grid2D.Location
 import com.soberg.aoc.utlities.datastructures.toCharGrid2D
+import kotlin.time.measureTimedValue
 
 // https://adventofcode.com/2024/day/12
 fun main() {
     val input = readInput(day = 12)
     val grid = input.toCharGrid2D()
-    println("Part 1: ${Part1.calculateTotalFencePrice(grid)}")
-    println("Part 2: ${Part2.calculateTotalFencePrice(grid)}")
+    val (part1Solution, part1Time) = measureTimedValue {
+        Part1.calculateTotalFencePrice(grid)
+    }
+    println("Part 1: $part1Solution, time: $part1Time")
+    val (part2Solution, part2Time) = measureTimedValue {
+        Part2.calculateTotalFencePrice(grid)
+    }
+    println("Part 2: $part2Solution, time: $part2Time")
 }
 
 private object Day12 {
