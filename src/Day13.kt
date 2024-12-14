@@ -10,7 +10,7 @@ fun main() {
     println("Part 1: ${Part2.calculateFewestTokens(clawGames)}")
 }
 
-object Day13 {
+private object Day13 {
 
     object Part1 {
         fun calculateFewestTokens(clawGames: List<ClawGame>): Long =
