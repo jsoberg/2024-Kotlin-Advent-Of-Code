@@ -4,6 +4,7 @@ import Day14.BathroomGrid.Quadrant.UpperLeft
 import Day14.BathroomGrid.Quadrant.UpperRight
 import Day14.BathroomGrid.Robot
 import Day14.Part1
+import Day14.Part2
 import Day14.parseInput
 
 // https://adventofcode.com/2024/day/14
@@ -11,6 +12,7 @@ fun main() {
     val input = readInput(day = 14)
     val grid = parseInput(w = 101, h = 103, input)
     println("Part 1: ${Part1.calculateSafetyFactor(grid, steps = 100)}")
+    println("Part 2: ${Part2.findChristmasTree(grid)}")
 }
 
 private object Day14 {
@@ -19,10 +21,26 @@ private object Day14 {
 
         fun calculateSafetyFactor(grid: BathroomGrid, steps: Int): Int {
             val newGrid = grid.afterSteps(steps)
-            val qCounts = newGrid.quadrantCounts()
-            return qCounts.values.reduce { acc, next ->
-                acc * next
+            return newGrid.safetyFactor
+        }
+    }
+
+    object Part2 {
+
+        // "Hail mary" solution for finding the christmas tree.
+        fun findChristmasTree(grid: BathroomGrid): Int {
+            var longestContinuousRow = 0
+            var longestContinuousRowStep = 0
+            // Arbitrarily large count to check.
+            for (step in 1..100_000) {
+                val longestRow = grid.afterSteps(step).longestContinuousRow()
+                if (longestRow > longestContinuousRow) {
+                    longestContinuousRow = longestRow
+                    longestContinuousRowStep = step
+                }
             }
+            grid.afterSteps(longestContinuousRowStep).print()
+            return longestContinuousRowStep
         }
     }
 
@@ -65,6 +83,10 @@ private object Day14 {
             )
         )
 
+        val safetyFactor: Int
+            get() = quadrantCounts().values
+                .reduce { acc, next -> acc * next }
+
         fun quadrantCounts(): Map<Quadrant, Int> {
             val halfHeight = height / 2
             val halfWidth = width / 2
@@ -85,6 +107,31 @@ private object Day14 {
                 }
             }
             return qMap
+        }
+
+        fun longestContinuousRow(): Int {
+            val rowToPosition = robots.map { it.position }
+                .groupBy { it.y }
+            var longestRow = -1
+            rowToPosition.entries.forEach { (row, positions) ->
+                val firstToLast = positions.map { it.x }.sorted()
+                var currentRow = 0
+                for (i in 1..firstToLast.lastIndex) {
+                    val previous = firstToLast[i - 1]
+                    val current = firstToLast[i]
+                    when {
+                        previous == current - 1 -> {
+                            currentRow++
+                            if (currentRow > longestRow) {
+                                longestRow = currentRow
+                            }
+                        }
+
+                        else -> currentRow = 1
+                    }
+                }
+            }
+            return longestRow
         }
 
         fun print() {
