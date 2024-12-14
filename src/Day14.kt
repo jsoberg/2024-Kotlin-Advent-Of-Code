@@ -113,7 +113,7 @@ private object Day14 {
             val rowToPosition = robots.map { it.position }
                 .groupBy { it.y }
             var longestRow = -1
-            rowToPosition.entries.forEach { (row, positions) ->
+            rowToPosition.entries.forEach { (_, positions) ->
                 val firstToLast = positions.map { it.x }.sorted()
                 var currentRow = 0
                 for (i in 1..firstToLast.lastIndex) {
@@ -136,10 +136,10 @@ private object Day14 {
 
         fun print() {
             val positionMap = robots.map { it.position }
-                .groupBy { it.x to it.y }
-            for (col in 0..<width) {
-                for (row in 0..<height) {
-                    val robotPositions = positionMap[col to row]
+                .groupBy { it.y to it.x }
+            for (row in 0..<height) {
+                for (col in 0..<width) {
+                    val robotPositions = positionMap[row to col]
                     if (robotPositions.isNullOrEmpty()) {
                         print('.')
                     } else print(robotPositions.size)
